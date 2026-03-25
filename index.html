@@ -22,7 +22,6 @@
             min-height: 100vh;
         }
 
-        /* светлая/темная тема через CSS переменные Telegram */
         :root {
             --tg-bg: var(--tg-theme-bg-color, #ffffff);
             --tg-text: var(--tg-theme-text-color, #1e2a3e);
@@ -46,7 +45,6 @@
             overflow: hidden;
         }
 
-        /* шапка */
         .header {
             background: var(--tg-secondary-bg);
             padding: 20px;
@@ -253,8 +251,26 @@
             transform: scale(0.97);
         }
 
-        .mv-section {
-            transition: all 0.2s;
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-indicator {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         @media (max-width: 550px) {
@@ -288,7 +304,7 @@
     </div>
     <div class="company-bar">
         <span>📋 ГОСТ Р 52719-2007, ГОСТ 16110-2019, ГОСТ 11677-85</span>
-        <span class="gost-ref">✓ Требования ТДН</span>
+        <span class="gost-ref">✓ Соответствует ТДН</span>
     </div>
     <div class="normative">
         <span>ГОСТ 11677-85</span>
@@ -304,18 +320,48 @@
             <div class="section-title">⚙️ 1. Основные параметры</div>
             <div class="table-responsive">
                 <table class="question-table">
-                    <tr><th>Тип по числу обмоток</th><td><select id="transformerType" name="transformer_type"><option value="two_winding">Двухобмоточный (ВН-НН)</option><option value="three_winding">Трехобмоточный (ВН-СН-НН)</option></select></td></tr>
-                    <tr><th>Тип / исполнение</th><td><input type="text" name="type" value="ТДН-16000/110" placeholder="ТДН/ТДТН"></td></tr>
-                    <tr><th>Номинальная мощность, МВА</th><td><select name="rated_power" id="powerSelect"><option>2.5</option><option>4.0</option><option>6.3</option><option>10.0</option><option selected>16.0</option><option>25.0</option><option>32.0</option><option>40.0</option><option>63.0</option><option>80.0</option><option>125.0</option><option value="other">Другое</option></select><input type="text" name="rated_power_other" placeholder="Укажите МВА" style="display:none; margin-top:6px;"></td></tr>
-                    <tr><th>Напряжение ВН, кВ</th><td><select name="hv_voltage" id="hvSelect"><option value="110">110</option><option value="115">115</option><option value="121">121</option><option value="other">Другое</option></select><input type="text" name="hv_voltage_other" placeholder="кВ" style="display:none; margin-top:6px;"></td></tr>
-                    <tr><th>Напряжение НН, кВ</th><td><select name="lv_voltage" id="lvSelect"><option value="6.3">6.3</option><option value="10.5" selected>10.5</option><option value="15.75">15.75</option><option value="20">20</option><option value="35">35</option><option value="other">Другое</option></select><input type="text" name="lv_voltage_other" placeholder="кВ" style="display:none; margin-top:6px;"></td></tr>
+                    <tr>
+                        <th>Тип по числу обмоток</th>
+                        <td><select id="transformerType" name="transformer_type"><option value="two_winding">Двухобмоточный (ВН-НН)</option><option value="three_winding">Трехобмоточный (ВН-СН-НН)</option></select></td>
+                    </tr>
+                    <tr>
+                        <th>Тип / исполнение</th>
+                        <td><input type="text" name="type" value="ТДН-16000/110" placeholder="ТДН/ТДТН"></td>
+                    </tr>
+                    <tr>
+                        <th>Номинальная мощность, МВА</th>
+                        <td><select name="rated_power" id="powerSelect"><option>2.5</option><option>4.0</option><option>6.3</option><option>10.0</option><option selected>16.0</option><option>25.0</option><option>32.0</option><option>40.0</option><option>63.0</option><option>80.0</option><option>125.0</option><option value="other">Другое</option></select><input type="text" name="rated_power_other" placeholder="Укажите МВА" style="display:none; margin-top:6px;"></td>
+                    </tr>
+                    <tr>
+                        <th>Напряжение ВН, кВ</th>
+                        <td><select name="hv_voltage" id="hvSelect"><option value="110">110</option><option value="115">115</option><option value="121">121</option><option value="other">Другое</option></select><input type="text" name="hv_voltage_other" placeholder="кВ" style="display:none; margin-top:6px;"></td>
+                    </tr>
+                    <tr>
+                        <th>Напряжение НН, кВ</th>
+                        <td><select name="lv_voltage" id="lvSelect"><option value="6.3">6.3</option><option value="10.5" selected>10.5</option><option value="15.75">15.75</option><option value="20">20</option><option value="35">35</option><option value="other">Другое</option></select><input type="text" name="lv_voltage_other" placeholder="кВ" style="display:none; margin-top:6px;"></td>
+                    </tr>
                     <tbody id="mvWindingBlock" style="display:none;">
-                        <tr><th>Напряжение СН, кВ</th><td><select name="mv_voltage" id="mvSelect"><option value="35">35</option><option value="27.5">27.5</option><option value="20">20</option><option value="10.5">10.5</option><option value="other">Другое</option></select><input type="text" name="mv_voltage_other" placeholder="кВ" style="display:none; margin-top:6px;"></td></tr>
-                        <tr><th>Мощность обмотки СН, МВА</th><td><input type="text" name="mv_power" placeholder="% или МВА" value="100%"></td></tr>
-                        <tr><th>Схема групп (ВН/СН/НН)</th><td><input type="text" name="connection_group_3w" value="Yн/Yн/∆-11-11"></td></tr>
+                        <tr>
+                            <th>Напряжение СН, кВ</th>
+                            <td><select name="mv_voltage" id="mvSelect"><option value="35">35</option><option value="27.5">27.5</option><option value="20">20</option><option value="10.5">10.5</option><option value="other">Другое</option></select><input type="text" name="mv_voltage_other" placeholder="кВ" style="display:none; margin-top:6px;"></td>
+                        </tr>
+                        <tr>
+                            <th>Мощность обмотки СН, МВА</th>
+                            <td><input type="text" name="mv_power" placeholder="% или МВА" value="100%"></td>
+                        </tr>
+                        <tr>
+                            <th>Схема групп (ВН/СН/НН)</th>
+                            <td><input type="text" name="connection_group_3w" value="Yн/Yн/∆-11-11"></td>
+                        </tr>
                     </tbody>
-                    <tr><th>Схема соединения (основная)</th><td><select name="connection_group"><option>Yн/∆-11</option><option>Yн/Yн-0</option><option>∆/Yн-11</option></select></td></tr>
-                    <tr><th>Режим нейтрали ВН</th><td><select name="neutral_mode"><option>Эффективно заземленная</option><option>Изолированная</option><option>Через реактор</option></select></td></tr>
+                    <tr>
+                        <th>Схема соединения (основная)</th>
+                        <td><select name="connection_group"><option>Yн/∆-11</option><option>Yн/Yн-0</option><option>∆/Yн-11</option></select></td>
+                    </tr>
+                    <tr>
+                        <th>Режим нейтрали ВН</th>
+                        <td><select name="neutral_mode"><option>Эффективно заземленная</option><option>Изолированная</option><option>Через реактор</option></select></td>
+                    </tr>
                 </table>
             </div>
         </div>
@@ -351,7 +397,7 @@
             </table></div>
         </div>
 
-        <!-- Секция 5: Встроенные ТТ (расширенные) -->
+        <!-- Секция 5: Встроенные ТТ -->
         <div class="section">
             <div class="section-title">🔌 5. Трансформаторы тока (встроенные)</div>
             <div class="table-responsive"><table class="question-table">
@@ -387,7 +433,7 @@
 
         <div class="footer-note">
             ✅ Опросный лист соответствует ГОСТ 11677, ГОСТ Р 52719, ГОСТ 16110 и ГОСТ IEC 60076-1-2024.<br>
-            📌 Данные сохраняются в XML и могут быть отправлены в Telegram.
+            📌 Заполните форму и нажмите "Отправить в чат" — данные будут переданы инженерам.
         </div>
 
         <div class="button-container">
@@ -401,10 +447,10 @@
 <script>
     // Инициализация Telegram WebApp
     const tg = window.Telegram.WebApp;
-    tg.expand();  // растягиваем на весь экран
-    tg.enableClosingConfirmation(); // подтверждение закрытия
+    tg.expand();
+    tg.enableClosingConfirmation();
     
-    // Адаптация цветовой схемы под тему Telegram
+    // Адаптация цветовой схемы
     const root = document.documentElement;
     root.style.setProperty('--tg-bg', tg.themeParams.bg_color || '#ffffff');
     root.style.setProperty('--tg-text', tg.themeParams.text_color || '#1e2a3e');
@@ -415,7 +461,7 @@
     root.style.setProperty('--tg-secondary-bg', tg.themeParams.secondary_bg_color || '#f0f4f8');
     document.body.setAttribute('data-theme', tg.colorScheme === 'dark' ? 'dark' : 'light');
     
-    // Управление динамическими блоками
+    // Управление динамическими полями
     const powerSelect = document.getElementById('powerSelect');
     const powerOther = document.querySelector('input[name="rated_power_other"]');
     powerSelect.addEventListener('change', () => { powerOther.style.display = powerSelect.value === 'other' ? 'block' : 'none'; });
@@ -448,7 +494,7 @@
     transformerType.addEventListener('change', toggleThreeWinding);
     toggleThreeWinding();
     
-    // Сбор данных формы в объект
+    // Сбор данных формы
     function collectFormData() {
         const form = document.getElementById('questionnaireForm');
         const formData = new FormData(form);
@@ -457,7 +503,6 @@
             if (!data[key]) data[key] = value;
             else data[key] = [data[key], value];
         }
-        // дополнительные поля
         data['shaot_required'] = document.querySelector('input[name="shaot_required"]')?.checked || false;
         data['dga_online'] = document.querySelector('input[name="dga_online"]')?.checked || false;
         const rpnRadio = document.querySelector('input[name="rpn_available"]:checked');
@@ -486,8 +531,7 @@
             params.appendChild(el);
         }
         root.appendChild(params);
-        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(doc);
-        return xml;
+        return '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(doc);
     }
     
     // Сохранение файла
@@ -501,35 +545,74 @@
         URL.revokeObjectURL(url);
     }
     
-    // Отправка в Telegram через WebApp (сообщение с файлом или текстом)
+    // Отправка в Telegram (согласно коду из пункта 4)
+    let isSending = false;
+    
     async function sendToTelegram() {
-        const formData = collectFormData();
-        const xmlContent = generateXML(formData);
-        const fileName = `transformer_questionnaire_${Date.now()}.xml`;
-        const file = new File([xmlContent], fileName, { type: 'application/xml' });
+        if (isSending) {
+            tg.showAlert('⏳ Отправка уже выполняется, подождите...');
+            return;
+        }
         
-        // Используем Telegram WebApp для отправки данных (возможность через Haptic и main button)
-        tg.HapticFeedback.impactOccurred('medium');
+        isSending = true;
+        const sendBtn = document.getElementById('sendToTelegramBtn');
+        const originalText = sendBtn.innerHTML;
+        sendBtn.innerHTML = '<span class="loading-indicator"></span> Отправка...';
+        sendBtn.disabled = true;
         
-        // Отправить данные через sendData (если бот поддерживает)
-        const dataToSend = JSON.stringify({
-            action: 'questionnaire_submit',
-            filename: fileName,
-            xml: xmlContent,
-            timestamp: new Date().toISOString()
-        });
-        tg.sendData(dataToSend);
-        
-        // Также уведомляем пользователя
-        tg.showAlert('✅ Опросный лист отправлен в чат (через WebApp data). Файл XML сохранен локально.');
-        downloadXML(xmlContent);
+        try {
+            const formData = collectFormData();
+            const xmlContent = generateXML(formData);
+            const fileName = `transformer_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xml`;
+            
+            // Формируем данные для отправки в формате, ожидаемом ботом
+            const payload = {
+                action: 'questionnaire_submit',
+                filename: fileName,
+                xml: xmlContent,
+                form_data: formData,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Отправляем через Telegram WebApp
+            tg.sendData(JSON.stringify(payload));
+            
+            // Хаптик-отклик для подтверждения
+            tg.HapticFeedback.notificationOccurred('success');
+            
+            // Показываем уведомление об успешной отправке
+            tg.showPopup({
+                title: '✅ Отправлено',
+                message: 'Опросный лист успешно отправлен инженерам.\nОжидайте обратной связи.',
+                buttons: [{type: 'ok'}]
+            });
+            
+        } catch (error) {
+            console.error('Ошибка при отправке:', error);
+            tg.showAlert('❌ Ошибка при отправке данных. Попробуйте ещё раз.');
+            tg.HapticFeedback.notificationOccurred('error');
+        } finally {
+            isSending = false;
+            sendBtn.innerHTML = originalText;
+            sendBtn.disabled = false;
+        }
     }
     
+    // Сохранение XML с уведомлением
     document.getElementById('saveXmlBtn').addEventListener('click', () => {
-        const data = collectFormData();
-        const xml = generateXML(data);
-        downloadXML(xml);
-        tg.showPopup({ title: 'Сохранено', message: 'XML файл загружен на устройство', buttons: [{type: 'ok'}] });
+        try {
+            const data = collectFormData();
+            const xml = generateXML(data);
+            downloadXML(xml);
+            tg.HapticFeedback.impactOccurred('light');
+            tg.showPopup({
+                title: '💾 Сохранено',
+                message: 'XML файл сохранён на ваше устройство',
+                buttons: [{type: 'ok'}]
+            });
+        } catch (error) {
+            tg.showAlert('Ошибка при сохранении файла');
+        }
     });
     
     document.getElementById('sendToTelegramBtn').addEventListener('click', () => {
@@ -542,25 +625,34 @@
         e.preventDefault();
         tg.showPopup({
             title: 'Очистка формы',
-            message: 'Вы уверены, что хотите сбросить все данные?',
+            message: 'Вы уверены, что хотите сбросить все введённые данные?',
             buttons: [{type: 'cancel'}, {type: 'destructive', text: 'Очистить'}]
         }, (btnId) => {
             if (btnId === 'destructive') {
                 document.getElementById('questionnaireForm').reset();
+                // Дополнительно сбрасываем динамические поля
+                powerOther.style.display = 'none';
+                hvOther.style.display = 'none';
+                lvOther.style.display = 'none';
+                if(mvOther) mvOther.style.display = 'none';
                 tg.showAlert('Форма очищена');
+                tg.HapticFeedback.impactOccurred('medium');
             }
         });
     });
     
-    // Адаптивный main button (опционально)
+    // Настройка MainButton (опционально)
     tg.MainButton.setText('📋 Заполнить опросный лист');
     tg.MainButton.onClick(() => {
         tg.showAlert('Используйте кнопки "Сохранить XML" или "Отправить в чат"');
     });
     tg.MainButton.show();
     
-    // Убираем стандартное поведение формы
+    // Отключаем стандартную отправку формы
     document.getElementById('questionnaireForm').addEventListener('submit', (e) => e.preventDefault());
+    
+    // Сообщаем Telegram, что приложение готово
+    tg.ready();
 </script>
 </body>
 </html>
