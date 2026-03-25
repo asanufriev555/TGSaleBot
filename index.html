@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <title>Опросный лист | Трансформатор 110 кВ</title>
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #1e2a3e);
+            padding: 16px;
+            min-height: 100vh;
+        }
+
+        /* светлая/темная тема через CSS переменные Telegram */
+        :root {
+            --tg-bg: var(--tg-theme-bg-color, #ffffff);
+            --tg-text: var(--tg-theme-text-color, #1e2a3e);
+            --tg-hint: var(--tg-theme-hint-color, #7e8c9e);
+            --tg-link: var(--tg-theme-link-color, #2c7da0);
+            --tg-button: var(--tg-theme-button-color, #2c7da0);
+            --tg-button-text: var(--tg-theme-button-text-color, #ffffff);
+            --tg-secondary-bg: var(--tg-theme-secondary-bg-color, #f0f4f8);
+            --card-border: #e2e8f0;
+        }
+
+        body[data-theme="dark"] {
+            --card-border: #2d3748;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: var(--tg-bg);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        /* шапка */
+        .header {
+            background: var(--tg-secondary-bg);
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            margin-bottom: 12px;
+        }
+
+        .logo-area h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--tg-text);
+            margin-bottom: 4px;
+        }
+
+        .logo-area p {
+            font-size: 0.7rem;
+            color: var(--tg-hint);
+        }
+
+        .doc-title {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .doc-title h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--tg-link);
+        }
+
+        .doc-title span {
+            font-size: 0.8rem;
+            color: var(--tg-hint);
+        }
+
+        .company-bar {
+            background: var(--tg-secondary-bg);
+            padding: 10px 16px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            font-size: 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gost-ref {
+            font-family: monospace;
+            background: rgba(0,0,0,0.05);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+        }
+
+        .normative {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .normative span {
+            background: var(--tg-secondary-bg);
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-family: monospace;
+            color: var(--tg-text);
+        }
+
+        .section {
+            background: var(--tg-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .section-title {
+            background: var(--tg-secondary-bg);
+            padding: 14px 18px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .question-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .question-table th {
+            text-align: left;
+            background-color: var(--tg-secondary-bg);
+            padding: 12px 14px;
+            font-weight: 600;
+            width: 42%;
+            border-bottom: 1px solid var(--card-border);
+            color: var(--tg-text);
+        }
+
+        .question-table td {
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .question-table tr:last-child td,
+        .question-table tr:last-child th {
+            border-bottom: none;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            background-color: var(--tg-bg);
+            color: var(--tg-text);
+            transition: 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--tg-link);
+            box-shadow: 0 0 0 2px rgba(44, 125, 160, 0.2);
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"], input[type="radio"] {
+            width: auto;
+            transform: scale(1.05);
+        }
+
+        .badge-gost {
+            background: rgba(44, 125, 160, 0.15);
+            font-size: 0.65rem;
+            border-radius: 16px;
+            padding: 2px 8px;
+            margin-left: 6px;
+            font-weight: normal;
+        }
+
+        .footer-note {
+            background: var(--tg-secondary-bg);
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            text-align: center;
+            margin: 20px 0;
+            color: var(--tg-hint);
+        }
+
+        .button-container {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0 30px;
+        }
+
+        button {
+            background-color: var(--tg-button);
+            color: var(--tg-button-text);
+            border: none;
+            padding: 12px 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            flex: 1;
+            min-width: 140px;
+        }
+
+        .btn-secondary {
+            background-color: var(--tg-hint);
+            opacity: 0.9;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        .mv-section {
+            transition: all 0.2s;
+        }
+
+        @media (max-width: 550px) {
+            body {
+                padding: 12px;
+            }
+            .question-table th, .question-table td {
+                display: table-cell;
+                padding: 10px 12px;
+            }
+            .section-title {
+                font-size: 1rem;
+            }
+            button {
+                padding: 10px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="logo-area">
+            <h1>ООО «ТОЛЬЯТТИНСКИЙ ТРАНСФОРМАТОР»</h1>
+            <p>445601, Россия, г.Тольятти, ул. Индустриальная, 1</p>
+        </div>
+        <div class="doc-title">
+            <h2>ОПРОСНЫЙ ЛИСТ</h2>
+            <span>силовой трансформатор 110 кВ > 2 МВА</span>
+        </div>
+    </div>
+    <div class="company-bar">
+        <span>📋 ГОСТ Р 52719-2007, ГОСТ 16110-2019, ГОСТ 11677-85</span>
+        <span class="gost-ref">✓ Требования ТДН</span>
+    </div>
+    <div class="normative">
+        <span>ГОСТ 11677-85</span>
+        <span>ГОСТ Р 52719-2007</span>
+        <span>ГОСТ 16110-2019</span>
+        <span>ГОСТ IEC 60076-1-2024</span>
+        <span>110 кВ</span>
+    </div>
+
+    <form id="questionnaireForm">
+        <!-- Секция 1: Основные параметры -->
+        <div class="section">
+            <div class="section-title">⚙️ 1. Основные параметры</div>
+            <div class="table-responsive">
+                <table class="question-table">
+                    <tr><th>Тип по числу обмоток</th><td><select id="transformerType" name="transformer_type"><option value="two_winding">Двухобмоточный (ВН-НН)</option><option value="three_winding">Трехобмоточный (ВН-СН-НН)</option></select></td></tr>
+                    <tr><th>Тип / исполнение</th><td><input type="text" name="type" value="ТДН-16000/110" placeholder="ТДН/ТДТН"></td></tr>
+                    <tr><th>Номинальная мощность, МВА</th><td><select name="rated_power" id="powerSelect"><option>2.5</option><option>4.0</option><option>6.3</option><option>10.0</option><option selected>16.0</option><option>25.0</option><option>32.0</option><option>40.0</option><option>63.0</option><option>80.0</option><option>125.0</option><option value="other">Другое</option></select><input type="text" name="rated_power_other" placeholder="Укажите МВА" style="display:none; margin-top:6px;"></td></tr>
+                    <tr><th>Напряжение ВН, кВ</th><td><select name="hv_voltage" id="hvSelect"><option value="110">110</option><option value="115">115</option><option value="121">121</option><option value="other">Другое</option></select><input type="text" name="hv_voltage_other" placeholder="кВ" style="display:none; margin-top:6px;"></td></tr>
+                    <tr><th>Напряжение НН, кВ</th><td><select name="lv_voltage" id="lvSelect"><option value="6.3">6.3</option><option value="10.5" selected>10.5</option><option value="15.75">15.75</option><option value="20">20</option><option value="35">35</option><option value="other">Другое</option></select><input type="text" name="lv_voltage_other" placeholder="кВ" style="display:none; margin-top:6px;"></td></tr>
+                    <tbody id="mvWindingBlock" style="display:none;">
+                        <tr><th>Напряжение СН, кВ</th><td><select name="mv_voltage" id="mvSelect"><option value="35">35</option><option value="27.5">27.5</option><option value="20">20</option><option value="10.5">10.5</option><option value="other">Другое</option></select><input type="text" name="mv_voltage_other" placeholder="кВ" style="display:none; margin-top:6px;"></td></tr>
+                        <tr><th>Мощность обмотки СН, МВА</th><td><input type="text" name="mv_power" placeholder="% или МВА" value="100%"></td></tr>
+                        <tr><th>Схема групп (ВН/СН/НН)</th><td><input type="text" name="connection_group_3w" value="Yн/Yн/∆-11-11"></td></tr>
+                    </tbody>
+                    <tr><th>Схема соединения (основная)</th><td><select name="connection_group"><option>Yн/∆-11</option><option>Yн/Yн-0</option><option>∆/Yн-11</option></select></td></tr>
+                    <tr><th>Режим нейтрали ВН</th><td><select name="neutral_mode"><option>Эффективно заземленная</option><option>Изолированная</option><option>Через реактор</option></select></td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Секция 2: РПН -->
+        <div class="section">
+            <div class="section-title">🎛️ 2. Регулирование</div>
+            <div class="table-responsive"><table class="question-table"><tr><th>РПН</th><td><div class="checkbox-group"><label><input type="radio" name="rpn_available" value="yes" checked> ✔️ Да</label><label><input type="radio" name="rpn_available" value="no"> ❌ Нет (ПБВ)</label></div></td></tr>
+            <tr><th>Диапазон РПН, %</th><td><input type="text" name="rpn_range" value="±8×1.25%"></td></tr>
+            <tr><th>Напряжение привода, В</th><td><input type="text" name="rpn_supply_voltage" value="380/220 В AC"></td></tr></table></div>
+        </div>
+
+        <!-- Секция 3: Потери и Uк -->
+        <div class="section">
+            <div class="section-title">📊 3. Параметры КЗ</div>
+            <div class="table-responsive"><table class="question-table">
+                <tr><th>Uк (ВН-НН), %</th><td><input type="text" name="uk_percent" value="10.5"></td></tr>
+                <tr id="ukMvRow" style="display:none;"><th>Uк (ВН-СН), %</th><td><input type="text" name="uk_hv_mv" value="10.5"></td></tr>
+                <tr id="ukMvLvRow" style="display:none;"><th>Uк (СН-НН), %</th><td><input type="text" name="uk_mv_lv" value="6.5"></td></tr>
+                <tr><th>Потери КЗ, кВт</th><td><input type="text" name="load_losses" value="85"></td></tr>
+                <tr><th>Потери ХХ, кВт</th><td><input type="text" name="no_load_losses" value="18"></td></tr>
+                <tr><th>Ток ХХ, %</th><td><input type="text" name="no_load_current" value="0.7"></td></tr>
+            </table></div>
+        </div>
+
+        <!-- Секция 4: Охлаждение -->
+        <div class="section">
+            <div class="section-title">🌀 4. Охлаждение</div>
+            <div class="table-responsive"><table class="question-table">
+                <tr><th>Вид охлаждения</th><td><select name="cooling_type"><option>Д</option><option>ДЦ</option><option>НДЦ</option></select></td></tr>
+                <tr><th>Климат. исполнение</th><td><input type="text" name="climate_category" value="У1"></td></tr>
+                <tr><th>Высота над уровнем моря, м</th><td><input type="text" name="altitude" value="≤1000"></td></tr>
+            </table></div>
+        </div>
+
+        <!-- Секция 5: Встроенные ТТ (расширенные) -->
+        <div class="section">
+            <div class="section-title">🔌 5. Трансформаторы тока (встроенные)</div>
+            <div class="table-responsive"><table class="question-table">
+                <tr><th>ТТ на вводах ВН</th><td><input type="text" name="hv_ct" value="2 шт: 0.2S/10P20, 300-600/5А, 20ВА"></td></tr>
+                <tr><th>ТТ нейтрали ВН</th><td><input type="text" name="neutral_ct" value="1 шт: 10P20, 200-400/5А, 15ВА"></td></tr>
+                <tr><th>ТТ на стороне НН</th><td><input type="text" name="lv_ct" value="3 шт: 0.5S/10P20, 1000-2000/5А"></td></tr>
+                <tbody id="mvCtBlock" style="display:none;"><tr><th>ТТ на стороне СН</th><td><input type="text" name="mv_ct" value="3 шт: 0.5S/10P20, 400-800/5А"></td></tr></tbody>
+                <tr><th>Примечания по ТТ</th><td><textarea name="ct_remarks" rows="2">Вывод вторичных цепей в шкаф</textarea></td></tr>
+            </table></div>
+        </div>
+
+        <!-- Секция 6: Мониторинг -->
+        <div class="section">
+            <div class="section-title">📡 6. Мониторинг</div>
+            <div class="table-responsive"><table class="question-table">
+                <tr><th>ШАОТ</th><td><div class="checkbox-group"><label><input type="checkbox" name="shaot_required" checked> Требуется</label></div></td></tr>
+                <tr><th>DGA (газоанализ)</th><td><div class="checkbox-group"><label><input type="checkbox" name="dga_online" checked> Встроенный</label></div></td></tr>
+                <tr><th>Протоколы передачи</th><td><input type="text" name="communication_protocol" value="IEC 61850, Modbus TCP"></td></tr>
+            </table></div>
+        </div>
+
+        <!-- Секция 7: Заказчик -->
+        <div class="section">
+            <div class="section-title">🏭 7. Данные заказчика</div>
+            <div class="table-responsive"><table class="question-table">
+                <tr><th>Организация</th><td><input type="text" name="customer_name" placeholder="Полное наименование"></td></tr>
+                <tr><th>Объект / ПС</th><td><input type="text" name="project_name"></td></tr>
+                <tr><th>Контактное лицо</th><td><input type="text" name="contact_person"></td></tr>
+                <tr><th>Email</th><td><input type="email" name="contact_email"></td></tr>
+                <tr><th>Доп. условия</th><td><textarea name="additional_requirements" rows="2">Окраска RAL 7035, ЗИП</textarea></td></tr>
+            </table></div>
+        </div>
+
+        <div class="footer-note">
+            ✅ Опросный лист соответствует ГОСТ 11677, ГОСТ Р 52719, ГОСТ 16110 и ГОСТ IEC 60076-1-2024.<br>
+            📌 Данные сохраняются в XML и могут быть отправлены в Telegram.
+        </div>
+
+        <div class="button-container">
+            <button type="button" id="saveXmlBtn" class="btn-secondary">💾 Сохранить XML</button>
+            <button type="button" id="sendToTelegramBtn">📤 Отправить в чат</button>
+            <button type="reset">🗑️ Очистить</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Инициализация Telegram WebApp
+    const tg = window.Telegram.WebApp;
+    tg.expand();  // растягиваем на весь экран
+    tg.enableClosingConfirmation(); // подтверждение закрытия
+    
+    // Адаптация цветовой схемы под тему Telegram
+    const root = document.documentElement;
+    root.style.setProperty('--tg-bg', tg.themeParams.bg_color || '#ffffff');
+    root.style.setProperty('--tg-text', tg.themeParams.text_color || '#1e2a3e');
+    root.style.setProperty('--tg-hint', tg.themeParams.hint_color || '#7e8c9e');
+    root.style.setProperty('--tg-link', tg.themeParams.link_color || '#2c7da0');
+    root.style.setProperty('--tg-button', tg.themeParams.button_color || '#2c7da0');
+    root.style.setProperty('--tg-button-text', tg.themeParams.button_text_color || '#ffffff');
+    root.style.setProperty('--tg-secondary-bg', tg.themeParams.secondary_bg_color || '#f0f4f8');
+    document.body.setAttribute('data-theme', tg.colorScheme === 'dark' ? 'dark' : 'light');
+    
+    // Управление динамическими блоками
+    const powerSelect = document.getElementById('powerSelect');
+    const powerOther = document.querySelector('input[name="rated_power_other"]');
+    powerSelect.addEventListener('change', () => { powerOther.style.display = powerSelect.value === 'other' ? 'block' : 'none'; });
+    
+    const hvSelect = document.getElementById('hvSelect');
+    const hvOther = document.querySelector('input[name="hv_voltage_other"]');
+    hvSelect.addEventListener('change', () => { hvOther.style.display = hvSelect.value === 'other' ? 'block' : 'none'; });
+    
+    const lvSelect = document.getElementById('lvSelect');
+    const lvOther = document.querySelector('input[name="lv_voltage_other"]');
+    lvSelect.addEventListener('change', () => { lvOther.style.display = lvSelect.value === 'other' ? 'block' : 'none'; });
+    
+    const mvSelect = document.getElementById('mvSelect');
+    const mvOther = document.querySelector('input[name="mv_voltage_other"]');
+    if(mvSelect) mvSelect.addEventListener('change', () => { if(mvOther) mvOther.style.display = mvSelect.value === 'other' ? 'block' : 'none'; });
+    
+    const transformerType = document.getElementById('transformerType');
+    const mvWindingBlock = document.getElementById('mvWindingBlock');
+    const ukMvRow = document.getElementById('ukMvRow');
+    const ukMvLvRow = document.getElementById('ukMvLvRow');
+    const mvCtBlock = document.getElementById('mvCtBlock');
+    
+    function toggleThreeWinding() {
+        const isThree = transformerType.value === 'three_winding';
+        mvWindingBlock.style.display = isThree ? 'table-row-group' : 'none';
+        if(ukMvRow) ukMvRow.style.display = isThree ? 'table-row' : 'none';
+        if(ukMvLvRow) ukMvLvRow.style.display = isThree ? 'table-row' : 'none';
+        if(mvCtBlock) mvCtBlock.style.display = isThree ? 'table-row-group' : 'none';
+    }
+    transformerType.addEventListener('change', toggleThreeWinding);
+    toggleThreeWinding();
+    
+    // Сбор данных формы в объект
+    function collectFormData() {
+        const form = document.getElementById('questionnaireForm');
+        const formData = new FormData(form);
+        const data = {};
+        for (let [key, value] of formData.entries()) {
+            if (!data[key]) data[key] = value;
+            else data[key] = [data[key], value];
+        }
+        // дополнительные поля
+        data['shaot_required'] = document.querySelector('input[name="shaot_required"]')?.checked || false;
+        data['dga_online'] = document.querySelector('input[name="dga_online"]')?.checked || false;
+        const rpnRadio = document.querySelector('input[name="rpn_available"]:checked');
+        if (rpnRadio) data['rpn_available'] = rpnRadio.value;
+        if (powerSelect.value === 'other' && powerOther.value) data['rated_power'] = powerOther.value;
+        if (hvSelect.value === 'other' && hvOther.value) data['hv_voltage'] = hvOther.value;
+        if (lvSelect.value === 'other' && lvOther.value) data['lv_voltage'] = lvOther.value;
+        if (transformerType.value === 'three_winding' && mvSelect && mvSelect.value === 'other' && mvOther?.value) data['mv_voltage'] = mvOther.value;
+        data['transformer_type'] = transformerType.value;
+        return data;
+    }
+    
+    // Генерация XML
+    function generateXML(formData) {
+        const doc = document.implementation.createDocument(null, 'questionnaire', null);
+        const root = doc.documentElement;
+        root.setAttribute('generated', new Date().toISOString());
+        root.setAttribute('voltage_class', '110kV');
+        const manufacturer = doc.createElement('manufacturer');
+        manufacturer.appendChild(doc.createTextNode('ООО «ТОЛЬЯТТИНСКИЙ ТРАНСФОРМАТОР»'));
+        root.appendChild(manufacturer);
+        const params = doc.createElement('technical_parameters');
+        for (const [key, val] of Object.entries(formData)) {
+            const el = doc.createElement(key.replace(/_/g, '-'));
+            el.appendChild(doc.createTextNode(String(val)));
+            params.appendChild(el);
+        }
+        root.appendChild(params);
+        let xml = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(doc);
+        return xml;
+    }
+    
+    // Сохранение файла
+    function downloadXML(content) {
+        const blob = new Blob([content], { type: 'application/xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.download = `transformer_110kv_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xml`;
+        a.href = url;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+    
+    // Отправка в Telegram через WebApp (сообщение с файлом или текстом)
+    async function sendToTelegram() {
+        const formData = collectFormData();
+        const xmlContent = generateXML(formData);
+        const fileName = `transformer_questionnaire_${Date.now()}.xml`;
+        const file = new File([xmlContent], fileName, { type: 'application/xml' });
+        
+        // Используем Telegram WebApp для отправки данных (возможность через Haptic и main button)
+        tg.HapticFeedback.impactOccurred('medium');
+        
+        // Отправить данные через sendData (если бот поддерживает)
+        const dataToSend = JSON.stringify({
+            action: 'questionnaire_submit',
+            filename: fileName,
+            xml: xmlContent,
+            timestamp: new Date().toISOString()
+        });
+        tg.sendData(dataToSend);
+        
+        // Также уведомляем пользователя
+        tg.showAlert('✅ Опросный лист отправлен в чат (через WebApp data). Файл XML сохранен локально.');
+        downloadXML(xmlContent);
+    }
+    
+    document.getElementById('saveXmlBtn').addEventListener('click', () => {
+        const data = collectFormData();
+        const xml = generateXML(data);
+        downloadXML(xml);
+        tg.showPopup({ title: 'Сохранено', message: 'XML файл загружен на устройство', buttons: [{type: 'ok'}] });
+    });
+    
+    document.getElementById('sendToTelegramBtn').addEventListener('click', () => {
+        sendToTelegram();
+    });
+    
+    // Сброс формы с подтверждением
+    const resetBtn = document.querySelector('button[type="reset"]');
+    resetBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        tg.showPopup({
+            title: 'Очистка формы',
+            message: 'Вы уверены, что хотите сбросить все данные?',
+            buttons: [{type: 'cancel'}, {type: 'destructive', text: 'Очистить'}]
+        }, (btnId) => {
+            if (btnId === 'destructive') {
+                document.getElementById('questionnaireForm').reset();
+                tg.showAlert('Форма очищена');
+            }
+        });
+    });
+    
+    // Адаптивный main button (опционально)
+    tg.MainButton.setText('📋 Заполнить опросный лист');
+    tg.MainButton.onClick(() => {
+        tg.showAlert('Используйте кнопки "Сохранить XML" или "Отправить в чат"');
+    });
+    tg.MainButton.show();
+    
+    // Убираем стандартное поведение формы
+    document.getElementById('questionnaireForm').addEventListener('submit', (e) => e.preventDefault());
+</script>
+</body>
+</html>
